@@ -1,8 +1,6 @@
 package com.leetcode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author JHYe
@@ -28,23 +26,69 @@ import java.util.List;
 public class leetcode438 {
 
     public static void main(String[] args) {
-        findAnagrams("cbaebabacd", "abc");
+        findAnagrams("baa", "aa");
     }
 
-    public static List<Integer> findAnagrams(String s, String p) {
+
+    public static List<Integer> findAnagrams(String s, String t) {
+        List<Integer> res = new ArrayList<>();
+        Map<Character, Integer> tmap = new HashMap<>();
+        Map<Character, Integer> window = new HashMap<>();
+        for (int i = 0; i < t.length(); i++) {
+            tmap.put(t.charAt(i), tmap.getOrDefault(t.charAt(i), 0) + 1);
+        }
+        int valid = tmap.size();
+        int dvalid = 0;
+        int left = 0;
+        int right = 0;
+
+        while (right < s.length()) {
+
+            char c = s.charAt(right);
+            right++;
+            if (tmap.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if (tmap.get(c).equals(window.get(c))) {
+                    dvalid++;
+                }
+            }
+
+            while (right - left >= t.length()) {
+                if (dvalid == valid) {
+                    // 可以添加left
+                    res.add(left);
+                }
+                // 往右移动
+                char leftC = s.charAt(left);
+                // 如果左侧的字符是目标字符
+                if (tmap.containsKey(leftC)){
+                    if (tmap.get(leftC).equals(window.get(leftC))){
+                        dvalid--;
+                    }
+                    window.put(leftC,window.get(leftC)-1);
+                }
+                left++;
+            }
+
+        }
+        return res;
+    }
+
+    // 有点慢了
+    public static List<Integer> findAnagrams0(String s, String p) {
         List<Integer> list = new ArrayList<>();
+        List<Integer> count = new ArrayList<>();
         int step = p.length();
         int[] intsp = new int[26];
-        for (int i = 0; i < p.length(); i++) {
-            intsp[p.charAt(i) - 'a']++;
-        }
         // 每次截取p长度的子字符串判断是否是异位词
+        int[] ints = new int[26];
         for (int i = 0; i <= s.length() - step; i++) {
-            int[] ints = new int[26];
             for (int j = i; j < i + step; j++) {
-                ints[s.charAt(j) - 'a']++;
+                int index = s.charAt(j) - 'a';
+                ints[index]++;
             }
-            if (Arrays.equals(ints,intsp)) list.add(i);
+            if (Arrays.equals(ints, intsp)) list.add(i);
+
         }
         return list;
     }
